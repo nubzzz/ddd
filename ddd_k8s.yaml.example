@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ddd-bot-lb
+spec:
+  selector:
+    app: ddd-bot
+  type: LoadBalancer
+  ports:
+    - port: 5000
+      protocol: TCP
+      targetPort: 5000
+---
+apiVersion: v1
+kind: ConfigMap
+data:
+  slack_verification_token: 'token'
+  slack_team_id: 'team_id'
+  flask_app: 'main.py'
+  plex_username: 'username'
+  plex_password: 'password'
+metadata:
+  name: ddd-bot-env-configmap
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    configmap.reloader.stakater.com/reload: ddd-bot-env-configmap
+  labels:
+    app: ddd-bot
+  name: ddd-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ddd-bot
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ddd-bot
+    spec:
+      containers:
+        - image: registry.nubzzz.com/misc/ddd:ddfd8abd
+          imagePullPolicy: Always
+          name: ddd-bot
+          env:
+            - name: SLACK_VERIFICATION_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: ddd-bot-env-configmap
+                  key: slack_verification_token
+            - name: SLACK_TEAM_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: ddd-bot-env-configmap
+                  key: slack_team_id
+            - name: FLASK_APP
+              valueFrom:
+                configMapKeyRef:
+                  name: ddd-bot-env-configmap
+                  key: flask_app
+            - name: PLEX_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: ddd-bot-env-configmap
+                  key: plex_username
+            - name: PLEX_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: ddd-bot-env-configmap
+                  key: plex_password
+          ports:
+            - containerPort: 5000
+          resources: {}
+      imagePullSecrets:
+        - name: home-registry
+      restartPolicy: Always
+      volumes:
+        - name: ddd-bot-env-configmap
+          configMap:
+            name: ddd-bot-env-configmap

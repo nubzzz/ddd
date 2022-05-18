@@ -1,0 +1,16 @@
+version: '3'
+services:
+  ddd:
+    container_name: ddd
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: "${REGISTRY:-}misc/ddd:${TAG:-latest}"
+    environment:
+      - SLACK_VERIFICATION_TOKEN='token'
+      - SLACK_TEAM_ID='team-id'
+      - FLASK_APP=main.py
+      - PLEX_USERNAME=testuser
+      - PLEX_PASSWORD=password
+    ports:
+      - '5000:5000'
