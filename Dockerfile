@@ -4,11 +4,12 @@ MAINTAINER Nubzzz "nubzzz@nubzzz.com
 
 WORKDIR /app
 
-COPY main.py main.py
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+COPY main.py /app/
+COPY requirements.txt /app/
+COPY wsgi.py /app/
+COPY gunicorn.sh /app/
+RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 5000
 
-ENTRYPOINT ["python"]
-CMD ["main.py"]
+ENTRYPOINT ["/app/gunicorn.sh"]
