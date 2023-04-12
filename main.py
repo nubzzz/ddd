@@ -8,7 +8,7 @@ import os
 plex_username = os.environ['PLEX_USERNAME']
 plex_password = os.environ['PLEX_PASSWORD']
 account = MyPlexAccount(plex_username, plex_password)
-plex = account.resource('storage02').connect()
+plex = account.resource('Home-Nas').connect()
 
 app = Flask(__name__)
 
