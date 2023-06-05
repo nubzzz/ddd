@@ -3,7 +3,7 @@ TAG=$(shell git rev-parse HEAD | head -c8)
 
 build tag:
 	export TAG=$(TAG) && \
-	docker-compose build
+	docker-compose build --no-cache
 
 push:
 	docker-compose push

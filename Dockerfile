@@ -1,15 +1,15 @@
-FROM python:buster as build
+FROM python:3.12.0b1-slim as build
 
 MAINTAINER Nubzzz "nubzzz@nubzzz.com
+
+ENV PYTHONGUNBUFFERED True
 
 WORKDIR /app
 
 COPY main.py /app/
 COPY requirements.txt /app/
-COPY wsgi.py /app/
-COPY gunicorn.sh /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 5000
+EXPOSE $PORT
 
-ENTRYPOINT ["/app/gunicorn.sh"]
+CMD exec gunicorn main:app -w 1 --threads 3 -b :$PORT --timeout=120 --log-level=debug
