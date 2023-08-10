@@ -20,6 +20,17 @@ def choose_ddd_episode():
     return return_text
 
 # TO DO: ADD SEARCH FEATURE
+def search_ddd_episode(text):
+    ddd_episodes = plex.library.section('TV Shows').get('Diners, Drive-ins and Dives').episodes()
+    l = len(ddd_episodes)
+    results = []
+    for i in range(l):
+        if text.lower() in ddd_episodes[i].summary.lower():
+            results.append(ddd_episodes[i])
+    return_text = f"The following episodes match the keyword: {text}\n\n"
+    for episode in results:
+        return_text += f"{episode.seasonEpisode} {episode.title}\n\n{episode.summary}\n\n"
+    return return_text
 
 def is_request_valid(request):
     is_token_valid = request.form['token'] == os.environ['SLACK_VERIFICATION_TOKEN']
@@ -33,6 +44,18 @@ def ddd():
         abort(400)
 
     ddd_text = choose_ddd_episode()
+
+    return jsonify(
+        response_type='in_channel',
+        text=ddd_text,
+    )
+
+@app.route('/ddd_search', methods=['POST'])
+def ddd_search():
+    if not is_request_valid(request):
+        abort(400)
+
+    ddd_text = search_ddd_episode(text)
 
     return jsonify(
         response_type='in_channel',
